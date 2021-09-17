@@ -10,7 +10,7 @@ import {
     DatePicker,
 } from 'antd';
 import moment from 'moment'
-import {EyeTwoTone, EditTwoTone, DeleteTwoTone} from '@ant-design/icons';
+import {EyeTwoTone, EditTwoTone, DeleteTwoTone, UpOutlined, DownOutlined } from '@ant-design/icons';
 import "./Form.scss"
 
 const BasicForm = () => {
@@ -26,13 +26,29 @@ const BasicForm = () => {
     })
     const [isEdit, setIsEdit] = useState();
     const [data, setData] = useState();
+    const [filterData, setFilterData] = useState([]);
     const {Option} = Select;
+    const { Search } = Input;
     let array = [];
 
-
+    const shorting = (value) =>{
+        let array = value;
+        array = array.map((item,i)=>{
+            item.key = i+1;
+            return item;
+        });
+        array = array.sort((a,b)=> a.key - b.key);
+        return array;
+    }
     useEffect(() => {
         let data = JSON.parse(localStorage.getItem("studentsData"));
         array = Array.isArray(data) && data.length > 0 ? data : [];
+
+        // array = array.map((item,i)=>{
+        //     item.key = i+1;
+        //     return item;
+        // });
+        array =  shorting(array);
     }, [])
     useEffect(() => {
         setData(array);
@@ -57,16 +73,20 @@ const BasicForm = () => {
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY'];
 
     const onSubmit = () => {
-        if (userValue.gender !== "" && userValue.studentName !== "" && userValue.email !== "" && userValue.rollNo !== "" && userValue.dob && userValue.branch !== "") {
+        if (userValue.gender.trim() !== 0 && userValue.studentName !== "" && userValue.email !== "" && userValue.rollNo !== "" && userValue.dob && userValue.branch !== "") {
             if (typeof isEdit === "number") {
-                const temp = JSON.parse(JSON.stringify(data));
+                let temp = JSON.parse(JSON.stringify(data));
                 temp.splice(isEdit, 1, userValue);
+                temp = shorting(temp)
                 setData(temp);
                 localStorage.setItem("studentsData", JSON.stringify(temp));
                 setIsEdit("");
             } else {
-                array.push(userValue);
-                setData([...data, userValue]);
+                let temp = JSON.parse(JSON.stringify(data));
+                temp.push(userValue);
+                temp =  shorting(temp)
+                setData(temp);
+                // setData([...data, userValue]);
                 localStorage.setItem("studentsData", JSON.stringify([...data, userValue]));
             }
             setUserValue({
@@ -82,8 +102,9 @@ const BasicForm = () => {
     }
 
     const DeleteData = async (i) => {
-        const temp = JSON.parse(JSON.stringify(data));
-        temp.splice(i, 1)
+        let temp = JSON.parse(JSON.stringify(data));
+        temp.splice(i, 1);
+        temp =  shorting(temp);
         localStorage.setItem("studentsData", JSON.stringify(temp));
         setData(temp);
     }
@@ -91,6 +112,26 @@ const BasicForm = () => {
         const temp = JSON.parse(JSON.stringify(data[i]));
         setUserValue(temp);
         setIsEdit(i);
+    }
+    const onSearch = (value) => {
+        let temp = JSON.parse(JSON.stringify(data));
+        if(value) {
+            let result = temp.filter(item => item.studentName.trim().toLowerCase() == value.trim().toLowerCase())
+            setFilterData(result);
+        }else {
+            setFilterData([]);
+            setData(temp);
+        }
+    };
+
+    const sorting = (index,newindex) =>{
+        let temp = JSON.parse(JSON.stringify(data));
+        let tempKey = temp[newindex-1].key;
+        temp[newindex-1].key = temp[index-1].key;
+        temp[index-1].key = tempKey;
+        temp.sort((a,b)=> a.key - b.key);
+        setData(temp);
+        localStorage.setItem("studentsData", JSON.stringify(temp));
     }
 
     const columns = [
@@ -129,12 +170,15 @@ const BasicForm = () => {
             key: 'action',
             render: (text, record, i) => (
                 <div className="icons">
+                    {console.log("recored",record)}
                     {/*<a>Invite {record.name}</a>*/}
                     <EyeTwoTone style={{fontSize: '23px'}}/>
                     <EditTwoTone twoToneColor="#9a9a9a" style={{fontSize: '23px', color: '#eb2f96'}}
-                                 onClick={() => editeData(i)}/>
+                                 onClick={() => editeData(record.key-1)}/>
                     <DeleteTwoTone twoToneColor="rgb(255 0 0)" style={{fontSize: '23px'}}
                                    onClick={() => DeleteData(i)}/>
+                    {record.key  > 1 ? <UpOutlined onClick={() =>sorting(record.key,record.key-1)}/> : <>&nbsp; &nbsp;</>}
+                    {record.key !== data.length ? <DownOutlined onClick={() =>sorting(record.key,record.key+1)}/> : <>&nbsp; &nbsp;</> }
                     {/*<DeleteOutlined />*/}
                 </div>
             ),
@@ -158,7 +202,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="studentName">Name.:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Enter Your Name" id="studentName" value={userValue.studentName || ""}
                            onChange={(e) => onChange(e.target.value, "studentName")} size={'large'}/>
                 </Col>
@@ -170,7 +214,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="rollNo"> Roll NO.:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="rollNo" value={userValue.rollNo || ""}
                            onChange={(e) => onChange(e.target.value, "rollNo")} size={'large'}/>
                 </Col>
@@ -181,7 +225,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="email"> Email:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="email" value={userValue.email || ""}
                            onChange={(e) => onChange(e.target.value, "email")} size={'large'}/>
                 </Col>
@@ -192,7 +236,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="branch"> Branch:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Select
                         id="branch"
                         placeholder="Select Branch"
@@ -211,7 +255,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="gender"> Gender:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Radio.Group
                         onChange={(e) => onChange(e.target.value, "gender")}
                         value={userValue.gender || ""} id="gender">
@@ -227,7 +271,7 @@ const BasicForm = () => {
                      lg={{span: 5, offset: 6}} xl={6}>
                     <label for="dob"> Date of Birth:</label>
                 </Col>
-                <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <DatePicker format={dateFormatList} id="dob"
                                 value={userValue && userValue.dob && moment(userValue.dob,'DD/MM/YYYY')}
                                 onChange={(date,dateString)=>onChange(date && date.format('L'), "dob")}
@@ -244,14 +288,21 @@ const BasicForm = () => {
                 </Col>
             </Row>
 
-
+            <row>
+                <Col xs={{span: 22, offset: 1}} sm={{span: 11, offset: 11}} md={{span: 8, offset: 14}}
+                     lg={{span: 7, offset: 15}} xl={{span: 6, offset: 16}}>
+                    <Search placeholder="input search text"
+                            onChange={(e)=>onSearch(e.target.value)}
+                            onSearch={(value)=>onSearch(value)} enterButton />
+                </Col>
+            </row>
             <row>
                 <Col xs={{span: 22, offset: 1}} sm={{span: 20, offset: 2}} md={{span: 20, offset: 2}}
                      lg={{span: 20, offset: 2}} xl={{span: 20, offset: 2}}>
                     <div className="tabel">
                         <Table
                             bordered
-                            dataSource={data}
+                            dataSource={filterData.length > 0 ? filterData : data}
                             columns={columns}
                             rowClassName="editable-row"
                         />
