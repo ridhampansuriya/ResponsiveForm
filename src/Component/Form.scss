@@ -1,0 +1,42 @@
+
+
+.outerBox{
+  .inputBox{
+    margin-bottom: 10px;
+  }
+  .ant-row{
+    .submit-btn{
+      border: 1px;
+      border-radius: 7px
+    }
+    .ant-col{
+      .ant-input{
+
+      }
+    }
+  }
+  row{
+    .ant-col{
+      .tabel{
+        overflow: scroll;
+        overflow-y: hidden;
+        .ant-spin-container{
+          .ant-table-container{
+            .ant-table-tbody{
+              .ant-table-row{
+                .ant-table-cell{
+                  .icons{
+                    display: flex;
+                    justify-content: space-evenly;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
