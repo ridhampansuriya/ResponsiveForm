@@ -206,7 +206,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Enter Your Name" id="studentName" value={userValue.studentName || ""}
-                           onChange={(e) => onChange(e.target.value, "studentName")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "studentName")} />
                 </Col>
             </Row>
 
@@ -218,7 +218,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="rollNo" value={userValue.rollNo || ""}
-                           onChange={(e) => onChange(e.target.value, "rollNo")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "rollNo")} />
                 </Col>
             </Row>
 
@@ -229,7 +229,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 22, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="email" value={userValue.email || ""}
-                           onChange={(e) => onChange(e.target.value, "email")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "email")} />
                 </Col>
             </Row>
 
