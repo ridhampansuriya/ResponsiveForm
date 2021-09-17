@@ -8,6 +8,7 @@ import {
     Button,
     Select,
     DatePicker,
+    Modal
 } from 'antd';
 import moment from 'moment'
 import {EyeTwoTone, EditTwoTone, DeleteTwoTone, UpOutlined, DownOutlined } from '@ant-design/icons';
@@ -27,6 +28,7 @@ const BasicForm = () => {
     const [isEdit, setIsEdit] = useState();
     const [data, setData] = useState();
     const [filterData, setFilterData] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState({visible:false,id:""});
     const {Option} = Select;
     const { Search } = Input;
     let array = [];
@@ -116,7 +118,7 @@ const BasicForm = () => {
     const onSearch = (value) => {
         let temp = JSON.parse(JSON.stringify(data));
         if(value) {
-            let result = temp.filter(item => item.studentName.trim().toLowerCase() == value.trim().toLowerCase())
+            let result = temp.filter(item => item.studentName.trim().toLowerCase().includes(value.trim().toLowerCase()));
             setFilterData(result);
         }else {
             setFilterData([]);
@@ -172,7 +174,7 @@ const BasicForm = () => {
                 <div className="icons">
                     {console.log("recored",record)}
                     {/*<a>Invite {record.name}</a>*/}
-                    <EyeTwoTone style={{fontSize: '23px'}}/>
+                    <EyeTwoTone style={{fontSize: '23px'}} onClick={()=>setIsModalVisible({id: record.key-1,visible:true})}/>
                     <EditTwoTone twoToneColor="#9a9a9a" style={{fontSize: '23px', color: '#eb2f96'}}
                                  onClick={() => editeData(record.key-1)}/>
                     <DeleteTwoTone twoToneColor="rgb(255 0 0)" style={{fontSize: '23px'}}
@@ -296,6 +298,18 @@ const BasicForm = () => {
                             onSearch={(value)=>onSearch(value)} enterButton />
                 </Col>
             </row>
+            <Modal title="Student Details" visible={isModalVisible.visible}
+                   // onOk={handleOk}
+                onCancel={()=>setIsModalVisible({...isModalVisible,visible : false})}
+                   footer={null}
+            >
+                <div className="box"><div className="tages"><b>Name:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].studentName}</div></div>
+                <div className="box"><div className="tages"><b>Branch:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].branch}</div></div>
+                <div className="box"><div className="tages"><b>Roll No:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].rollNo}</div></div>
+                <div className="box"><div className="tages"><b>Gender:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].gender}</div></div>
+                <div className="box"><div className="tages"><b>Date of Birth:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].dob}</div></div>
+                <div className="box"><div className="tages"><b>Email:</b></div><div className="details">{isModalVisible.visible && data[isModalVisible.id].email}</div></div>
+            </Modal>
             <row>
                 <Col xs={{span: 22, offset: 1}} sm={{span: 20, offset: 2}} md={{span: 20, offset: 2}}
                      lg={{span: 20, offset: 2}} xl={{span: 20, offset: 2}}>

@@ -39,4 +39,19 @@
   }
 }
 
+.ant-modal{
+  .box{
+
+    display: flex;
+    justify-content: flex-start;
+    .tages{
+      width: 50%;
+    }
+    .details{
+      width: 50%;
+      font-size: large;
+    }
+  }
+}
+
 
