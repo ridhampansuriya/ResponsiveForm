@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {
-    Col, Row, Input,
+    Col,
+    Row,
+    Input,
     Table,
     Radio,
     Button,
@@ -12,7 +14,8 @@ import {EyeTwoTone, EditTwoTone, DeleteTwoTone} from '@ant-design/icons';
 import "./Form.scss"
 
 const BasicForm = () => {
-    const {Option} = Select;
+
+
     const [userValue, setUserValue] = useState({
         studentName: "",
         gender: "",
@@ -23,17 +26,19 @@ const BasicForm = () => {
     })
     const [isEdit, setIsEdit] = useState();
     const [data, setData] = useState();
+    const {Option} = Select;
     let array = [];
+
+
     useEffect(() => {
-        array  = JSON.parse(localStorage.getItem("studentsData")).length > 0 ? JSON.parse(localStorage.getItem("studentsData")) : [];
+        let data = JSON.parse(localStorage.getItem("studentsData"));
+        array = Array.isArray(data) && data.length > 0 ? data : [];
     }, [])
     useEffect(() => {
         setData(array);
     }, [])
 
-
-    const onChange = (e, name) => {
-        const {value} = e.target;
+    const onChange = (value, name) => {
         console.log("event", value)
         setUserValue({
             ...userValue,
@@ -42,7 +47,6 @@ const BasicForm = () => {
     };
 
     const branch = ['IT', 'Meachanical', 'Chemical', 'Production', 'Civl', 'Power Electronics', 'Electrical']
-
     const getBranch = () => {
         const branchData = [];
         branch.forEach((item, i) => {
@@ -53,8 +57,8 @@ const BasicForm = () => {
     const dateFormatList = ['DD/MM/YYYY', 'DD/MM/YY'];
 
     const onSubmit = () => {
-        if (userValue.gender !== "" && userValue.studentName !== "" && userValue.email !== "" && userValue.rollNo !== "") {
-            if (isEdit) {
+        if (userValue.gender !== "" && userValue.studentName !== "" && userValue.email !== "" && userValue.rollNo !== "" && userValue.dob && userValue.branch !== "") {
+            if (typeof isEdit === "number") {
                 const temp = JSON.parse(JSON.stringify(data));
                 temp.splice(isEdit, 1, userValue);
                 setData(temp);
@@ -65,15 +69,16 @@ const BasicForm = () => {
                 setData([...data, userValue]);
                 localStorage.setItem("studentsData", JSON.stringify([...data, userValue]));
             }
+            setUserValue({
+                studentName: "",
+                gender: "",
+                email: "",
+                rollNo: "",
+                branch: "",
+                dob: "",
+            })
         }
-        setUserValue({
-            studentName: "",
-            gender: "",
-            email: "",
-            rollNo: "",
-            branch: "",
-            dob: "",
-        })
+
     }
 
     const DeleteData = async (i) => {
@@ -95,6 +100,11 @@ const BasicForm = () => {
             key: 'studentName',
         },
         {
+            title: 'Branch',
+            dataIndex: 'branch',
+            key: 'branch',
+        },
+        {
             title: 'Roll NO.',
             dataIndex: 'rollNo',
             key: 'rollNo',
@@ -103,6 +113,11 @@ const BasicForm = () => {
             title: 'Gender',
             key: 'gender',
             dataIndex: 'gender',
+        },
+        {
+            title: 'Date of Birth',
+            key: 'dob',
+            dataIndex: 'dob',
         },
         {
             title: 'Email',
@@ -136,6 +151,8 @@ const BasicForm = () => {
                     </Col>
                 </Col>
             </Row>
+
+
             <Row className="inputBox">
                 <Col xs={{span: 20, offset: 1}} sm={{span: 7, offset: 2}} md={{span: 5, offset: 5}}
                      lg={{span: 5, offset: 6}} xl={6}>
@@ -143,7 +160,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Enter Your Name" id="studentName" value={userValue.studentName || ""}
-                           onChange={(e) => onChange(e, "studentName")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "studentName")} size={'large'}/>
                 </Col>
             </Row>
 
@@ -155,7 +172,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="rollNo" value={userValue.rollNo || ""}
-                           onChange={(e) => onChange(e, "rollNo")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "rollNo")} size={'large'}/>
                 </Col>
             </Row>
 
@@ -166,7 +183,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Input placeholder="Basic usage" id="email" value={userValue.email || ""}
-                           onChange={(e) => onChange(e, "email")} size={'large'}/>
+                           onChange={(e) => onChange(e.target.value, "email")} size={'large'}/>
                 </Col>
             </Row>
 
@@ -179,7 +196,10 @@ const BasicForm = () => {
                     <Select
                         id="branch"
                         placeholder="Select Branch"
-                        style={{width: 200}}>
+                        style={{width: 200}}
+                        value={userValue.branch || ""}
+                        onChange={(value)=>onChange(value, "branch")}
+                    >
                         {getBranch()}
                     </Select>
                 </Col>
@@ -193,7 +213,7 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <Radio.Group
-                        onChange={(e) => onChange(e, "gender")}
+                        onChange={(e) => onChange(e.target.value, "gender")}
                         value={userValue.gender || ""} id="gender">
                         <Radio value='Male'>Male</Radio>
                         <Radio value='Female'>Female</Radio>
@@ -209,6 +229,8 @@ const BasicForm = () => {
                 </Col>
                 <Col xs={{span: 21, offset: 1}} sm={{span: 12, offset: 0}} md={9} lg={8} xl={7}>
                     <DatePicker format={dateFormatList} id="dob"
+                                value={userValue && userValue.dob && moment(userValue.dob,'DD/MM/YYYY')}
+                                onChange={(date,dateString)=>onChange(date && date.format('L'), "dob")}
                     />
                 </Col>
             </Row>
